@@ -16,8 +16,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const metadataTableName = "digger-tbm-metadata"
-
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Initialize TBM metadata on AWS",
