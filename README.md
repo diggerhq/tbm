@@ -3,7 +3,7 @@ A CLI to manage S3 backends for terraform in your AWS account
 
 # Usage
 
-1. Set AWS keys either as `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY` env vars, or in `~/.aws/credentials` file
+1. Set `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY` and `AWS_REGION` env vars (or use `~/.aws/credentials`)
 2. Run `tbm init` to initialize TBM metadata in DynamoDB
 3. Run `tbm new` to create a new S3 backend. Use the values printed in your terraform backend configuration. 
 
