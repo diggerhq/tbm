@@ -6,6 +6,7 @@ package cmd
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -34,17 +35,39 @@ var initCmd = &cobra.Command{
 			var notFoundEx *types.ResourceNotFoundException
 			if errors.As(err, &notFoundEx) {
 				err = nil
-				// creating metadata table since it doesn't exist
-				// TODO create table here
+				_ = createDynamodbTable(metadataTableName, dynamodbClient)
+				fmt.Printf("TBM successfully initialized. Table %v created", metadataTableName)
 			} else {
 				log.Fatal(err)
 			}
 		} else {
-			log.Printf("TBM was already initialized in this AWS region. Table %v already exists.\n", metadataTableName)
+			fmt.Printf("TBM was already initialized in %v. Table %v already exists.\n", awsConfig.Region, metadataTableName)
 		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(initCmd)
+}
+
+func createDynamodbTable(tableName string, dynamodbClient *dynamodb.Client) *dynamodb.CreateTableOutput {
+	table, err := dynamodbClient.CreateTable(context.TODO(), &dynamodb.CreateTableInput{
+		AttributeDefinitions: []types.AttributeDefinition{{
+			AttributeName: aws.String("backendName"),
+			AttributeType: types.ScalarAttributeTypeN,
+		}},
+		KeySchema: []types.KeySchemaElement{{
+			AttributeName: aws.String("backendName"),
+			KeyType:       types.KeyTypeHash,
+		}},
+		TableName: aws.String(tableName),
+		ProvisionedThroughput: &types.ProvisionedThroughput{
+			ReadCapacityUnits:  aws.Int64(10),
+			WriteCapacityUnits: aws.Int64(10),
+		},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	return table
 }
